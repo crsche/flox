@@ -11,7 +11,6 @@ use super::generations::{Generations, GenerationsError};
 use super::path_environment::PathEnvironment;
 use super::{
     gcroots_dir,
-    CanonicalPath,
     CanonicalizeError,
     CoreEnvironmentError,
     EditResult,
@@ -24,7 +23,7 @@ use super::{
     CACHE_DIR_NAME,
     ENVIRONMENT_POINTER_FILENAME,
 };
-use crate::data::Version;
+use crate::data::{CanonicalPath, Version};
 use crate::flox::{EnvironmentRef, Flox};
 use crate::models::container_builder::ContainerBuilder;
 use crate::models::environment_ref::{EnvironmentName, EnvironmentOwner};
