@@ -3,6 +3,7 @@ pub mod container_builder;
 pub mod environment;
 pub mod environment_ref;
 pub mod floxmeta;
+pub mod link_registry;
 pub mod lockfile;
 pub mod manifest;
 pub mod pkgdb;
