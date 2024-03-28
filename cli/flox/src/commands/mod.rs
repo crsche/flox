@@ -58,6 +58,7 @@ use thiserror::Error;
 use toml_edit::Key;
 use url::Url;
 
+use self::envs::RegisteredEnvironments;
 use crate::commands::general::update_config;
 use crate::config::{Config, EnvironmentTrust, FLOX_CONFIG_FILE};
 use crate::utils::dialog::{Dialog, Select};
@@ -520,6 +521,7 @@ impl AdditionalCommands {
             AdditionalCommands::Update(args) => args.handle(flox).await?,
             AdditionalCommands::Upgrade(args) => args.handle(flox).await?,
             AdditionalCommands::Config(args) => args.handle(config, flox).await?,
+            AdditionalCommands::Envs(args) => args.handle(flox)?,
         }
         Ok(())
     }
@@ -645,8 +647,10 @@ impl EnvironmentSelect {
                 let maybe_found_environment = find_dot_flox(&current_dir)?;
                 match maybe_found_environment {
                     Some(found) => {
-                        Ok(UninitializedEnvironment::DotFlox(found)
-                            .into_concrete_environment(flox)?)
+                        let uninitialized = UninitializedEnvironment::DotFlox(found);
+                        RegisteredEnvironments::new(flox)?.register(&uninitialized)?;
+
+                        Ok(uninitialized.into_concrete_environment(flox)?)
                     },
                     None => Err(EnvironmentSelectError::EnvNotFoundInCurrentDirectory)?,
                 }
@@ -681,7 +685,11 @@ impl EnvironmentSelect {
             // already activated environment or an environment in the current
             // directory.
             EnvironmentSelect::Unspecified => match detect_environment(message)? {
-                Some(env) => Ok(env.into_concrete_environment(flox)?),
+                Some(env) => {
+                    RegisteredEnvironments::new(flox)?.register(&env)?;
+
+                    Ok(env.into_concrete_environment(flox)?)
+                },
                 None => Err(EnvironmentSelectError::EnvNotFoundInCurrentDirectory)?,
             },
             EnvironmentSelect::Remote(env_ref) => {
@@ -766,10 +774,12 @@ pub fn detect_environment(
 }
 
 /// Open an environment defined in `{path}/.flox`
-fn open_path(flox: &Flox, path: &PathBuf) -> Result<ConcreteEnvironment, EnvironmentError> {
-    DotFlox::open(path)
-        .map(UninitializedEnvironment::DotFlox)?
-        .into_concrete_environment(flox)
+fn open_path(flox: &Flox, path: &PathBuf) -> Result<ConcreteEnvironment, EnvironmentSelectError> {
+    let uninitialized = DotFlox::open(path).map(UninitializedEnvironment::DotFlox)?;
+
+    RegisteredEnvironments::new(flox)?.register(&uninitialized)?;
+
+    Ok(uninitialized.into_concrete_environment(flox)?)
 }
 
 /// The various ways in which an environment can be referred to
@@ -871,6 +881,7 @@ impl UninitializedEnvironment {
                         ConcreteEnvironment::Managed(env)
                     },
                 };
+
                 Ok(env)
             },
             UninitializedEnvironment::Remote(pointer) => {
