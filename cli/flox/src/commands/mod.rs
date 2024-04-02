@@ -822,7 +822,7 @@ impl ConcreteEnvironment {
 /// * for [RemoteEnvironment] that's the [ManagedPointer] to the remote environment
 ///
 /// Serialized as is into [FLOX_ACTIVE_ENVIRONMENTS_VAR] to be able to reopen environments.
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 #[serde(tag = "type")]
 #[serde(rename_all = "kebab-case")]
 pub enum UninitializedEnvironment {

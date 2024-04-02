@@ -194,7 +194,9 @@ pub trait Environment: Send {
 /// A pointer to an environment, either managed or path.
 /// This is used to determine the type of an environment at a given path.
 /// See [EnvironmentPointer::open].
-#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, derive_more::From)]
+#[derive(
+    Clone, Debug, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord, derive_more::From,
+)]
 #[serde(untagged)]
 pub enum EnvironmentPointer {
     /// Identifies an environment whose source of truth lies outside of the project itself
@@ -206,7 +208,7 @@ pub enum EnvironmentPointer {
 /// The identifier for a project environment.
 ///
 /// This is serialized to `env.json` inside the `.flox` directory
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct PathPointer {
     pub name: EnvironmentName,
     version: Version<1>,
@@ -226,7 +228,7 @@ impl PathPointer {
 /// points to an environment owner and the name of the environment.
 ///
 /// This is serialized to an `env.json` inside the `.flox` directory.
-#[derive(Debug, Serialize, Clone, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Clone, Deserialize, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ManagedPointer {
     pub owner: EnvironmentOwner,
     pub name: EnvironmentName,
@@ -310,7 +312,7 @@ impl EnvironmentPointer {
 /// However, this type does not perform any validation of the referenced environment.
 /// Opening the environment with [ManagedEnvironment::open] or
 /// [PathEnvironment::open], could still fail.
-#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct DotFlox {
     pub path: PathBuf,
     pub pointer: EnvironmentPointer,
