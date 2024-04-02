@@ -6,7 +6,8 @@ use indoc::formatdoc;
 use tracing::instrument;
 
 use super::{environment_select, EnvironmentSelect};
-use crate::commands::{environment_description, ConcreteEnvironment};
+use crate::commands::envs::RegisteredEnvironments;
+use crate::commands::{environment_description, ConcreteEnvironment, UninitializedEnvironment};
 use crate::subcommand_metric;
 use crate::utils::dialog::{Confirm, Dialog};
 use crate::utils::message;
@@ -53,6 +54,23 @@ impl Delete {
             bail!("Environment deletion cancelled");
         }
 
+        let registry = RegisteredEnvironments::new(&flox)?;
+
+        match &environment {
+            ConcreteEnvironment::Path(_) => registry.unregister(
+                UninitializedEnvironment::from_concrete_environment(&environment)?
+                    .path()
+                    .unwrap()
+                    .into(),
+            )?,
+            ConcreteEnvironment::Managed(_) => registry.unregister(
+                UninitializedEnvironment::from_concrete_environment(&environment)?
+                    .path()
+                    .unwrap()
+                    .into(),
+            )?,
+            ConcreteEnvironment::Remote(_) => unreachable!(),
+        }
         match environment {
             ConcreteEnvironment::Path(environment) => environment.delete(&flox),
             ConcreteEnvironment::Managed(environment) => environment.delete(&flox),
