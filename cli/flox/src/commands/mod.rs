@@ -838,14 +838,14 @@ impl UninitializedEnvironment {
             ConcreteEnvironment::Path(path_env) => {
                 let pointer = path_env.pointer.clone().into();
                 Ok(Self::DotFlox(DotFlox {
-                    path: path_env.parent_path().unwrap(),
+                    path: path_env.parent_path()?,
                     pointer,
                 }))
             },
             ConcreteEnvironment::Managed(managed_env) => {
                 let pointer = managed_env.pointer().clone().into();
                 Ok(Self::DotFlox(DotFlox {
-                    path: managed_env.parent_path().unwrap(),
+                    path: managed_env.parent_path()?,
                     pointer,
                 }))
             },

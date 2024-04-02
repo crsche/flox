@@ -23,7 +23,8 @@ use log::debug;
 use toml_edit::{Document, Formatted, Item, Table, Value};
 use tracing::instrument;
 
-use crate::commands::{environment_description, ConcreteEnvironment};
+use crate::commands::envs::RegisteredEnvironments;
+use crate::commands::{environment_description, ConcreteEnvironment, UninitializedEnvironment};
 use crate::subcommand_metric;
 use crate::utils::dialog::{Dialog, Spinner};
 use crate::utils::message;
@@ -141,8 +142,11 @@ impl Init {
             name = env.name(),
             system = flox.system
         ));
+
+        let concrete_env = ConcreteEnvironment::Path(env);
+
         if let Some(packages) = customization.packages {
-            let description = environment_description(&ConcreteEnvironment::Path(env))?;
+            let description = environment_description(&concrete_env)?;
             for package in packages {
                 message::package_installed(&package, &description);
             }
@@ -155,6 +159,11 @@ impl Init {
               $ flox activate            <- Enter the environment
             "
         });
+
+        RegisteredEnvironments::new(&flox)?.register(
+            &UninitializedEnvironment::from_concrete_environment(&concrete_env)?,
+        )?;
+
         Ok(())
     }
 

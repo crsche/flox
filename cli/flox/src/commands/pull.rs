@@ -26,7 +26,8 @@ use toml_edit::Document;
 use tracing::instrument;
 use url::Url;
 
-use super::{open_path, ConcreteEnvironment};
+use super::envs::RegisteredEnvironments;
+use super::{open_path, ConcreteEnvironment, UninitializedEnvironment};
 use crate::subcommand_metric;
 use crate::utils::dialog::{Dialog, Select, Spinner};
 use crate::utils::errors::{display_chain, format_locked_manifest_error};
@@ -360,6 +361,11 @@ impl Pull {
                 bail!(e)
             },
         };
+
+        let concrete_env = ConcreteEnvironment::Managed(env);
+        RegisteredEnvironments::new(flox)?.register(
+            &UninitializedEnvironment::from_concrete_environment(&concrete_env)?,
+        )?;
         Ok(())
     }
 

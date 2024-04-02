@@ -385,6 +385,12 @@ impl Environment for ManagedEnvironment {
         self.parent_path()
     }
 
+    /// Returns the directory containing the .flox directory
+    /// or an error if the path is invalid
+    ///
+    /// This methods should only fail if the environment
+    /// is created with `/` as the `dot_flox_path`.
+    /// TODO: deny this at construction time and return an `expect`ed result?
     fn parent_path(&self) -> Result<PathBuf, EnvironmentError> {
         self.path
             .parent()
