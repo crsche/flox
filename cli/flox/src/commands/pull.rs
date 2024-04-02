@@ -11,6 +11,7 @@ use flox_rust_sdk::models::environment::managed_environment::{
 };
 use flox_rust_sdk::models::environment::{
     CoreEnvironmentError,
+    DotFlox,
     Environment,
     EnvironmentError,
     EnvironmentPointer,
@@ -258,6 +259,11 @@ impl Pull {
         }
         .spin();
 
+        let register_env = UninitializedEnvironment::DotFlox(DotFlox {
+            path: env.parent_path()?,
+            pointer: EnvironmentPointer::Managed(env.pointer().clone()),
+        });
+
         Self::handle_pull_result(
             flox,
             result,
@@ -268,7 +274,11 @@ impl Pull {
                 query_add_system: Self::query_add_system,
                 query_ignore_build_errors: Self::query_ignore_build_errors,
             }),
-        )
+        )?;
+
+        RegisteredEnvironments::new(flox)?.register(&register_env)?;
+
+        Ok(())
     }
 
     /// Helper function for [Self::pull_new_environment] that can be unit tested.
@@ -361,11 +371,6 @@ impl Pull {
                 bail!(e)
             },
         };
-
-        let concrete_env = ConcreteEnvironment::Managed(env);
-        RegisteredEnvironments::new(flox)?.register(
-            &UninitializedEnvironment::from_concrete_environment(&concrete_env)?,
-        )?;
         Ok(())
     }
 
