@@ -1055,6 +1055,10 @@ impl ActiveEnvironments {
     pub fn is_active(&self, env: &UninitializedEnvironment) -> bool {
         self.0.contains(env)
     }
+
+    pub fn iter(&self) -> impl Iterator<Item = &UninitializedEnvironment> {
+        self.0.iter()
+    }
 }
 
 impl Display for ActiveEnvironments {
