@@ -71,7 +71,7 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
 
       - name: "Load secrets"
-        id: "1password"
+        id: "secrets"
         uses: "1password/load-secrets-action@v2"
         with:
           export-env: false
@@ -87,12 +87,12 @@ jobs:
       - name: "Setup"
         uses: "./.github/actions/common-setup"
         with:
-          GITHUB_ACCESS_TOKEN:    "${{ steps.1password.outputs.FLOX_GITHUB_ACCESS_TOKEN }}"
-          SUBSTITUTER:            "${{ steps.1password.outputs.FLOX_CACHE_PUBLIC_BUCKET }}"
-          SUBSTITUTER_KEY:        "${{ steps.1password.outputs.FLOX_CACHE_PUBLIC_NIX_SECRET_KEY }}"
-          AWS_ACCESS_KEY_ID:      "${{ steps.1password.outputs.FLOX_CACHE_PUBLIC_AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY:  "${{ steps.1password.outputs.FLOX_CACHE_PUBLIC_AWS_SECRET_ACCESS_KEY }}"
-          SSH_KEY:                "${{ steps.1password.outputs.FLOXBOT_SSH_KEY }}"
+          GITHUB_ACCESS_TOKEN:    "${{ steps.secrets.outputs.FLOX_GITHUB_ACCESS_TOKEN }}"
+          SUBSTITUTER:            "${{ steps.secrets.outputs.FLOX_CACHE_PUBLIC_BUCKET }}"
+          SUBSTITUTER_KEY:        "${{ steps.secrets.outputs.FLOX_CACHE_PUBLIC_NIX_SECRET_KEY }}"
+          AWS_ACCESS_KEY_ID:      "${{ steps.secrets.outputs.FLOX_CACHE_PUBLIC_AWS_ACCESS_KEY_ID }}"
+          AWS_SECRET_ACCESS_KEY:  "${{ steps.secrets.outputs.FLOX_CACHE_PUBLIC_AWS_SECRET_ACCESS_KEY }}"
+          SSH_KEY:                "${{ steps.secrets.outputs.FLOXBOT_SSH_KEY }}"
 
       - name: "Build"
         run: nix develop -L --no-update-lock-file --command just build-pkgdb
