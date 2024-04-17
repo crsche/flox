@@ -54,7 +54,7 @@ runs:
     - name: "Configure Nix"
       shell: "bash"
       run: |
-        sudo echo 
+        sudo echo
         {
           echo "experimental-features = nix-command flakes";
           echo "accept-flake-config = true";

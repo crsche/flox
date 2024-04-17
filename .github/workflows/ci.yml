@@ -70,15 +70,26 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.pull_request.head.ref || github.ref }}
 
+      - name: "Load secrets"
+        uses: "1password/load-secrets-action@v2"
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: "${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}"
+          FLOX_GITHUB_ACCESS_TOKEN: "op://github-actions/ci/github-access-token"
+          FLOX_CACHE_PUBLIC_BUCKET: "op://github-actions/flox-cache-public/s3-bucket"
+          FLOX_CACHE_PUBLIC_NIX_SECRET_KEY: "op://github-actions/flox-cache-public/secret-key"
+          FLOX_CACHE_PUBLIC_AWS_ACCESS_KEY_ID: "op://github-actions/flox-cache-public/aws-access-key"
+          FLOX_CACHE_PUBLIC_AWS_SECRET_ACCESS_KEY: "op://github-actions/flox-cache-public/aws-secret-access-key"
+          FLOXBOT_SSH_KEY: "op://github-actions/ci/floxbot-ssh-key"
+
       - name: "Setup"
         uses: "./.github/actions/common-setup"
         with:
-          GITHUB_ACCESS_TOKEN:    "${{ secrets.NIX_GIT_TOKEN }}"
-          SUBSTITUTER:            "${{ vars.FLOX_CACHE_PUBLIC_BUCKET }}"
-          SUBSTITUTER_KEY:        "${{ secrets.FLOX_CACHE_PUBLIC_NIX_SECRET_KEY }}"
-          AWS_ACCESS_KEY_ID:      "${{ secrets.FLOX_CACHE_PUBLIC_AWS_ACCESS_KEY_ID }}"
-          AWS_SECRET_ACCESS_KEY:  "${{ secrets.FLOX_CACHE_PUBLIC_AWS_SECRET_ACCESS_KEY }}"
-          SSH_KEY:                "${{ secrets.FLOXBOT_SSH_KEY }}"
+          GITHUB_ACCESS_TOKEN:    "${{ env.FLOX_GITHUB_ACCESS_TOKEN }}"
+          SUBSTITUTER:            "${{ env.FLOX_CACHE_PUBLIC_BUCKET }}"
+          SUBSTITUTER_KEY:        "${{ env.FLOX_CACHE_PUBLIC_NIX_SECRET_KEY }}"
+          AWS_ACCESS_KEY_ID:      "${{ env.FLOX_CACHE_PUBLIC_AWS_ACCESS_KEY_ID }}"
+          AWS_SECRET_ACCESS_KEY:  "${{ env.FLOX_CACHE_PUBLIC_AWS_SECRET_ACCESS_KEY }}"
+          SSH_KEY:                "${{ env.FLOXBOT_SSH_KEY }}"
 
       - name: "Build"
         run: nix develop -L --no-update-lock-file --command just build-pkgdb
