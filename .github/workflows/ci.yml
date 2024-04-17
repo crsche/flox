@@ -81,6 +81,9 @@ jobs:
           FLOX_CACHE_PUBLIC_AWS_SECRET_ACCESS_KEY: "op://github-actions/flox-cache-public/aws-secret-access-key"
           FLOXBOT_SSH_KEY: "op://github-actions/ci/floxbot-ssh-key"
 
+      - name: "DEBUG"
+        uses: "mxschmitt/action-tmate@v3"
+
       - name: "Setup"
         uses: "./.github/actions/common-setup"
         with:
